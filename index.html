@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DRIPLY | CORE</title>
+    <title>DRIPLY | OFFICIAL STORE</title>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -18,46 +18,45 @@
         .hidden { display: none !important; }
 
         /* NAVIGATION */
-        nav { height: 70px; display: flex; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(5,5,5,0.95); z-index: 1000; }
+        nav { height: 70px; display: flex; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(5,5,5,0.95); z-index: 1000; backdrop-filter: blur(10px); }
         .nav-inner { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-family: var(--font-heading); font-size: 1rem; cursor: pointer; letter-spacing: 2px; }
+        .logo { font-family: var(--font-heading); font-size: 0.9rem; cursor: pointer; letter-spacing: 2px; }
         .nav-links a { text-decoration: none; color: var(--primary); font-size: 0.7rem; margin-left: 1.5rem; cursor: pointer; font-weight: 700; }
 
-        /* CLOSE BUTTON (X) */
-        .close-btn { 
-            position: absolute; top: 20px; right: 20px; font-size: 1.5rem; 
-            cursor: pointer; background: none; border: none; color: var(--primary);
-            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-            z-index: 100;
-        }
-
-        /* PRODUCT GRID */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; padding: 2rem 0; }
-        .product-item { border: 1px solid var(--border); background: var(--surface); cursor: pointer; }
-        .product-item img { width: 100%; aspect-ratio: 1/1.2; object-fit: cover; }
-        .product-item-meta { padding: 1rem; }
-
-        /* OVERLAYS */
+        /* OVERLAYS & MODALS */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; overflow-y: auto; }
-        
-        /* PRODUCT PAGE */
-        .product-page { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; padding: 4rem 0; }
-        .swatch-group, .size-group { display: flex; gap: 10px; margin: 1rem 0 2rem; }
+        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 1.8rem; cursor: pointer; background: none; border: none; color: var(--primary); z-index: 100; transition: 0.3s; }
+        .close-btn:hover { color: var(--accent); transform: rotate(90deg); }
+
+        /* SHOP GRID */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; padding: 2rem 0; }
+        .product-item { border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: 0.4s; }
+        .product-item img { width: 100%; aspect-ratio: 1/1.2; object-fit: cover; }
+        .product-item-meta { padding: 1.2rem; }
+
+        /* PRODUCT DETAIL UI */
+        .product-page { display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem; padding: 4rem 0; }
+        .swatch-group, .size-group { display: flex; gap: 12px; margin: 10px 0 25px; flex-wrap: wrap; }
         .swatch { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; }
-        .swatch.active { border-color: var(--primary); box-shadow: 0 0 10px var(--accent); }
-        .size-box { padding: 10px 20px; border: 1px solid var(--border); cursor: pointer; font-size: 0.8rem; }
-        .size-box.active { background: var(--primary); color: var(--bg); font-weight: 700; }
-
-        /* BUTTONS */
-        .btn { 
-            background: var(--primary); color: var(--bg); border: none; padding: 1.2rem; 
-            width: 100%; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+        .swatch.active { border-color: var(--primary); box-shadow: 0 0 12px var(--accent); }
+        
+        .size-box { 
+            padding: 12px 22px; border: 1px solid var(--border); cursor: pointer; 
+            font-size: 0.8rem; background: transparent; color: white; transition: 0.2s;
         }
-        .btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .size-box.active { background: var(--primary); color: var(--bg); font-weight: 700; border-color: var(--primary); }
 
-        /* FORMS */
-        input { background: #111; border: 1px solid var(--border); color: white; padding: 12px; width: 100%; margin-bottom: 1rem; font-family: inherit; }
-        .admin-item { display: flex; align-items: center; gap: 2rem; background: var(--surface); padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border); }
+        /* BUTTONS & FORMS */
+        .btn { background: var(--primary); color: var(--bg); border: none; padding: 1.2rem; width: 100%; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
+        .btn:disabled { background: #222; color: #555; cursor: not-allowed; }
+        input { background: #0f0f0f; border: 1px solid var(--border); color: white; padding: 15px; width: 100%; margin-bottom: 1rem; font-family: inherit; }
+        label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; display: block; }
+
+        /* CHECKOUT COMPONENTS */
+        .paypal-banner { background: #1a1a00; border: 1px solid var(--accent); color: var(--accent); padding: 1rem; font-size: 0.75rem; margin-bottom: 2rem; text-align: center; font-weight: 700; }
+        .cart-row { display: flex; gap: 20px; align-items: center; border-bottom: 1px solid #111; padding-bottom: 20px; margin-bottom: 20px; }
+
+        @media (max-width: 768px) { .product-page { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -66,8 +65,8 @@
         <div class="container nav-inner">
             <div class="logo" onclick="app.view('home')">DRIPLY</div>
             <div class="nav-links">
-                <a onclick="app.view('shop')">SHOP</a>
-                <a onclick="app.view('cart')">CART (<span id="cart-count">0</span>)</a>
+                <a onclick="app.view('shop')">COLLECTION</a>
+                <a onclick="app.view('cart')">BAG (<span id="cart-count">0</span>)</a>
                 <a onclick="app.view('admin-login')">ADMIN</a>
             </div>
         </div>
@@ -75,8 +74,8 @@
 
     <main id="app">
         <section id="v-home" class="page">
-            <div class="container" style="padding: 10rem 0;">
-                <h1 style="font-family: var(--font-heading); font-size: 8vw; line-height: 1;">CORE<br>SERIES</h1>
+            <div class="container" style="padding: 15vh 0;">
+                <h1 style="font-family: var(--font-heading); font-size: 10vw; line-height: 0.9;">DROP<br>001</h1>
                 <button class="btn" style="width: auto; padding: 1.5rem 4rem; margin-top: 2rem;" onclick="app.view('shop')">ENTER SHOP</button>
             </div>
         </section>
@@ -85,61 +84,78 @@
             <div class="container"><div id="shop-grid" class="grid"></div></div>
         </section>
 
-        <section id="v-cart" class="page hidden overlay">
-            <button class="close-btn" onclick="app.view('shop')">✕</button>
-            <div class="container" style="padding: 5rem 0;">
-                <h2 style="font-family: var(--font-heading); margin-bottom: 3rem;">BAG</h2>
-                <div id="cart-items"></div>
-                <div id="cart-footer"></div>
-            </div>
-        </section>
-
         <section id="v-product" class="page hidden overlay">
             <button class="close-btn" onclick="app.view('shop')">✕</button>
             <div class="container"><div id="product-content" class="product-page"></div></div>
         </section>
 
+        <section id="v-cart" class="page hidden overlay">
+            <button class="close-btn" onclick="app.view('shop')">✕</button>
+            <div class="container" style="padding: 5rem 0; max-width: 800px;">
+                <h2 style="font-family: var(--font-heading); margin-bottom: 3rem;">YOUR BAG</h2>
+                <div id="cart-items"></div>
+                <div id="cart-footer"></div>
+            </div>
+        </section>
+
+        <section id="v-checkout" class="page hidden overlay">
+            <button class="close-btn" onclick="app.view('cart')">✕</button>
+            <div class="container" style="padding: 5rem 0; max-width: 500px;">
+                <h2 style="font-family: var(--font-heading); margin-bottom: 2rem;">SHIPPING</h2>
+                <div class="paypal-banner">ONLY PAYPAL PAYMENT AVAILABLE AT THIS MOMENT</div>
+                <form onsubmit="app.processPayment(event)">
+                    <label>Full Name</label><input type="text" id="ship-name" required>
+                    <label>Address</label><input type="text" id="ship-addr" required>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex:2"><label>City</label><input type="text" id="ship-city" required></div>
+                        <div style="flex:1"><label>Zip</label><input type="text" id="ship-zip" required></div>
+                    </div>
+                    <label>Country</label><input type="text" id="ship-country" required>
+                    <button type="submit" class="btn" style="margin-top: 1rem; background: #0070ba; color: white;">PAY WITH PAYPAL</button>
+                </form>
+            </div>
+        </section>
+
         <section id="v-admin-login" class="page hidden overlay">
             <button class="close-btn" onclick="app.view('home')">✕</button>
-            <div class="container" style="max-width: 400px; padding-top: 15vh;">
-                <h2 style="margin-bottom: 2rem; font-family: var(--font-heading); font-size: 0.8rem;">SECURE ACCESS</h2>
-                <input type="text" id="adm-user" placeholder="Username">
-                <input type="password" id="adm-pass" placeholder="Password">
-                <button class="btn" onclick="admin.login()">LOGIN</button>
+            <div class="container" style="max-width: 400px; padding-top: 20vh;">
+                <h2 style="font-family: var(--font-heading); margin-bottom: 2rem;">STAFF ONLY</h2>
+                <input type="text" id="adm-user" placeholder="User">
+                <input type="password" id="adm-pass" placeholder="Pass">
+                <button class="btn" onclick="admin.login()">AUTHORIZE</button>
             </div>
         </section>
 
         <section id="v-admin-dash" class="page hidden overlay">
             <button class="close-btn" onclick="app.view('home')">✕</button>
             <div class="container" style="padding: 5rem 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 3rem;">
                     <h2 style="font-family: var(--font-heading);">INVENTORY</h2>
-                    <button class="btn" style="width: auto; padding: 0.8rem 2rem;" onclick="admin.openModal()">+ ADD PRODUCT</button>
+                    <button class="btn" style="width: auto; padding: 10px 20px;" onclick="admin.openModal()">+ NEW PRODUCT</button>
                 </div>
-                <div id="admin-product-list"></div>
+                <div id="admin-list"></div>
             </div>
         </section>
     </main>
 
-    <div id="admin-modal" class="overlay hidden" style="background: rgba(0,0,0,0.9); display: flex; align-items: center;">
-        <div class="container" style="max-width: 600px;">
-            <div style="background: var(--surface); border: 1px solid var(--border); padding: 2.5rem; position: relative;">
-                <button class="close-btn" onclick="admin.closeModal()">✕</button>
-                <h3 style="margin-bottom: 1.5rem;">PRODUCT DATA</h3>
-                <input type="text" id="p-name" placeholder="Name">
-                <input type="number" id="p-price" placeholder="Price">
-                <input type="text" id="p-sizes" placeholder="Sizes (e.g. S, M, L, XL)">
-                <div id="variant-list"></div>
-                <button class="btn" style="background: #222; color: #fff; margin-bottom: 1.5rem; padding: 0.5rem;" onclick="admin.addVariantRow()">+ Add Color Variant</button>
-                <button class="btn" onclick="admin.save()">SAVE PRODUCT</button>
-            </div>
+    <div id="admin-modal" class="overlay hidden" style="background: rgba(0,0,0,0.98); display: flex; align-items: center;">
+        <div class="container" style="max-width: 600px; background: #0f0f0f; padding: 2.5rem; border: 1px solid #222; position: relative;">
+            <button class="close-btn" onclick="admin.closeModal()">✕</button>
+            <h3 style="margin-bottom: 2rem;">MANAGE PRODUCT</h3>
+            <input type="text" id="p-name" placeholder="Name">
+            <input type="number" id="p-price" placeholder="Price">
+            <input type="text" id="p-sizes" placeholder="Sizes (e.g. S, M, L, XL)">
+            <label>Color Variants (Name & Photo URL)</label>
+            <div id="variant-rows"></div>
+            <button class="btn" style="background: #222; color: #fff; font-size: 0.7rem; padding: 10px; margin: 10px 0 30px;" onclick="admin.addVariantRow()">+ Add Color Variant</button>
+            <button class="btn" onclick="admin.save()">SAVE PRODUCT</button>
         </div>
     </div>
 
     <script>
-        let products = JSON.parse(localStorage.getItem('driply_v_prods')) || [];
-        let cart = JSON.parse(localStorage.getItem('driply_v_cart')) || [];
-        let curProd = null, curVar = null, curSize = null, editId = null;
+        let products = JSON.parse(localStorage.getItem('driply_v5_prods')) || [];
+        let cart = JSON.parse(localStorage.getItem('driply_v5_cart')) || [];
+        let activeProd = null, activeVar = null, activeSize = null, editId = null;
 
         const app = {
             view(id) {
@@ -148,13 +164,13 @@
                 if(id === 'shop') this.renderShop();
                 if(id === 'cart') this.renderCart();
                 if(id === 'admin-dash') admin.renderList();
+                window.scrollTo(0,0);
             },
 
             renderShop() {
                 const grid = document.getElementById('shop-grid');
                 const live = products.filter(p => p.active);
-                if(!live.length) { grid.innerHTML = "<h2 style='grid-column: 1/-1; padding: 5rem 0;'>NO DROPS YET.</h2>"; return; }
-                grid.innerHTML = live.map(p => `
+                grid.innerHTML = live.length ? live.map(p => `
                     <div class="product-item" onclick="app.showProduct('${p.id}')">
                         <img src="${p.variants[0].img}">
                         <div class="product-item-meta">
@@ -162,13 +178,13 @@
                             <span style="color: var(--text-muted);">$${p.price}</span>
                         </div>
                     </div>
-                `).join('');
+                `).join('') : "<h2 style='grid-column: 1/-1; padding: 5rem 0;'>NO DROPS ACTIVE.</h2>";
             },
 
             showProduct(id) {
-                curProd = products.find(p => p.id === id);
-                curVar = curProd.variants[0];
-                curSize = null;
+                activeProd = products.find(p => p.id === id);
+                activeVar = activeProd.variants[0];
+                activeSize = null;
                 this.view('product');
                 this.renderDetail();
             },
@@ -176,34 +192,32 @@
             renderDetail() {
                 const container = document.getElementById('product-content');
                 container.innerHTML = `
-                    <img src="${curVar.img}" style="width: 100%; aspect-ratio: 1/1.2; object-fit: cover;">
+                    <img src="${activeVar.img}" id="main-product-img" style="width: 100%; aspect-ratio: 1/1.2; object-fit: cover;">
                     <div>
-                        <h1 style="font-family: var(--font-heading); margin-bottom: 1rem;">${curProd.name}</h1>
-                        <p style="font-size: 1.5rem; margin-bottom: 2rem;">$${curProd.price}</p>
-                        <small>COLOR: ${curVar.color}</small>
+                        <h1 style="font-family: var(--font-heading); margin-bottom: 10px;">${activeProd.name}</h1>
+                        <p style="font-size: 1.5rem; margin-bottom: 30px;">$${activeProd.price}</p>
+                        
+                        <label>Color: ${activeVar.color}</label>
                         <div class="swatch-group">
-                            ${curProd.variants.map(v => `
-                                <div class="swatch ${curVar.color === v.color ? 'active' : ''}" 
-                                     style="background: ${v.color.toLowerCase()}" 
-                                     onclick="app.setVar('${v.color}')"></div>
-                            `).join('')}
+                            ${activeProd.variants.map(v => `<div class="swatch ${activeVar.color === v.color ? 'active' : ''}" style="background: ${v.color}" onclick="app.setVar('${v.color}')"></div>`).join('')}
                         </div>
-                        <small>SIZE: ${curSize || 'Select'}</small>
+
+                        <label>Size: ${activeSize || 'Select'}</label>
                         <div class="size-group">
-                            ${curProd.sizes.map(s => `<div class="size-box ${curSize === s ? 'active' : ''}" onclick="app.setSize('${s}')">${s}</div>`).join('')}
+                            ${activeProd.sizes.map(s => `<div class="size-box ${activeSize === s ? 'active' : ''}" onclick="app.setSize('${s}')">${s}</div>`).join('')}
                         </div>
-                        <button class="btn" onclick="app.addToCart()" ${!curSize ? 'disabled' : ''}>${curSize ? 'ADD TO BAG' : 'SELECT SIZE'}</button>
+
+                        <button class="btn" onclick="app.addToCart()" ${!activeSize ? 'disabled' : ''}>${activeSize ? 'ADD TO BAG' : 'SELECT SIZE'}</button>
                     </div>
                 `;
             },
 
-            setVar(c) { curVar = curProd.variants.find(v => v.color === c); this.renderDetail(); },
-            setSize(s) { curSize = s; this.renderDetail(); },
+            setVar(c) { activeVar = activeProd.variants.find(v => v.color === c); this.renderDetail(); },
+            setSize(s) { activeSize = s; this.renderDetail(); },
 
             addToCart() {
-                cart.push({ uid: Date.now(), name: curProd.name, price: curProd.price, color: curVar.color, size: curSize, img: curVar.img });
-                this.sync();
-                this.view('cart');
+                cart.push({ uid: Date.now(), name: activeProd.name, price: activeProd.price, color: activeVar.color, size: activeSize, img: activeVar.img });
+                this.sync(); this.view('cart');
             },
 
             renderCart() {
@@ -212,116 +226,93 @@
                 if(!cart.length) { list.innerHTML = "BAG EMPTY"; footer.innerHTML = ""; return; }
                 
                 list.innerHTML = cart.map((item, idx) => `
-                    <div style="display: flex; gap: 2rem; margin-bottom: 1rem; align-items: center; border-bottom: 1px solid #111; padding-bottom: 1rem;">
-                        <img src="${item.img}" style="width: 80px;">
-                        <div style="flex: 1">
-                            <strong>${item.name}</strong><br>
-                            <small>${item.color} / ${item.size}</small>
-                        </div>
+                    <div class="cart-row">
+                        <img src="${item.img}" style="width: 70px; height: 90px; object-fit: cover;">
+                        <div style="flex: 1"><strong>${item.name}</strong><br><small>${item.color} / ${item.size}</small></div>
                         <strong>$${item.price}</strong>
-                        <button class="close-btn" style="position: static;" onclick="app.remCart(${idx})">✕</button>
+                        <button class="close-btn" style="position: static; font-size: 1.2rem;" onclick="app.remCart(${idx})">✕</button>
                     </div>
                 `).join('');
 
                 const total = cart.reduce((a, b) => a + parseFloat(b.price), 0);
-                footer.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; margin-top: 2rem;"><span>TOTAL</span><span>$${total.toFixed(2)}</span></div>
-                    <button class="btn" style="margin-top: 2rem;" onclick="app.pay()">PAY & ORDER</button>
-                `;
+                footer.innerHTML = `<div style="display:flex; justify-content:space-between; margin: 2rem 0;"><h3>TOTAL</h3><h3>$${total.toFixed(2)}</h3></div><button class="btn" onclick="app.view('checkout')">CHECKOUT</button>`;
             },
 
             remCart(idx) { cart.splice(idx, 1); this.sync(); this.renderCart(); },
 
-            pay() {
-                // EXTREMELY IMPORTANT: We pack the color and size into the PayPal note/memo
-                const orderDetails = cart.map(i => `${i.name} (${i.color}/${i.size})`).join(', ');
+            processPayment(e) {
+                e.preventDefault();
                 const total = cart.reduce((a, b) => a + parseFloat(b.price), 0);
+                const n = document.getElementById('ship-name').value;
+                const a = document.getElementById('ship-addr').value;
+                const c = document.getElementById('ship-city').value;
+                const z = document.getElementById('ship-zip').value;
+                const items = cart.map(i => `${i.name}(${i.color}/${i.size})`).join(', ');
+
+                const memo = `DRIPLY ORDER: ${items} | SHIP TO: ${n}, ${a}, ${c}, ${z}`;
+                const url = `https://paypal.me/AdamDupont917/${total.toFixed(2)}?item_name=${encodeURIComponent(memo)}`;
                 
-                alert(`Order confirmed: ${orderDetails}`);
-                
-                // Construct PayPal Link with Order Details as a memo
-                const base = "https://paypal.me/AdamDupont917";
-                const amount = total.toFixed(2);
-                const memo = encodeURIComponent(`DRIPLY ORDER: ${orderDetails}`);
-                
-                cart = [];
-                this.sync();
-                window.location.href = `${base}/${amount}?item_name=${memo}`;
+                cart = []; this.sync();
+                window.location.href = url;
             },
 
             sync() {
-                localStorage.setItem('driply_v_prods', JSON.stringify(products));
-                localStorage.setItem('driply_v_cart', JSON.stringify(cart));
+                localStorage.setItem('driply_v5_prods', JSON.stringify(products));
+                localStorage.setItem('driply_v5_cart', JSON.stringify(cart));
                 document.getElementById('cart-count').innerText = cart.length;
             }
         };
 
         const admin = {
             login() {
-                if(document.getElementById('adm-user').value === 'Tourya' && document.getElementById('adm-pass').value === 'Philipo21') {
-                    app.view('admin-dash');
-                } else alert('Denied');
+                if(document.getElementById('adm-user').value === 'Tourya' && document.getElementById('adm-pass').value === 'Philipo21') app.view('admin-dash');
+                else alert('AUTH FAILED');
             },
-
             renderList() {
-                const container = document.getElementById('admin-product-list');
+                const container = document.getElementById('admin-list');
                 container.innerHTML = products.map(p => `
-                    <div class="admin-item">
-                        <img src="${p.variants[0].img}" style="width: 50px;">
-                        <div style="flex: 1"><strong>${p.name}</strong></div>
-                        <button class="btn" style="width:auto; padding: 0.5rem;" onclick="admin.toggle('${p.id}')">${p.active ? 'ACTIVE' : 'HIDDEN'}</button>
-                        <button class="btn" style="width:auto; padding: 0.5rem;" onclick="admin.openModal('${p.id}')">EDIT</button>
-                        <button class="btn" style="width:auto; padding: 0.5rem; background: #400; color: #fff;" onclick="admin.delete('${p.id}')">✕</button>
+                    <div style="display:flex; align-items:center; gap:20px; background:#0f0f0f; padding:1rem; border:1px solid #222; margin-bottom:10px;">
+                        <img src="${p.variants[0].img}" style="width: 40px;">
+                        <div style="flex:1"><strong>${p.name}</strong></div>
+                        <button onclick="admin.toggle('${p.id}')" style="padding:5px 10px;">${p.active ? 'LIVE' : 'HIDDEN'}</button>
+                        <button onclick="admin.openModal('${p.id}')" style="padding:5px 10px;">EDIT</button>
+                        <button onclick="admin.del('${p.id}')" style="padding:5px 10px; color:red;">✕</button>
                     </div>
                 `).join('');
             },
-
             openModal(id = null) {
-                editId = id;
-                document.getElementById('admin-modal').classList.remove('hidden');
-                document.getElementById('variant-list').innerHTML = '';
+                editId = id; document.getElementById('admin-modal').classList.remove('hidden');
+                document.getElementById('variant-rows').innerHTML = '';
                 if(id) {
                     const p = products.find(x => x.id === id);
                     document.getElementById('p-name').value = p.name;
                     document.getElementById('p-price').value = p.price;
-                    document.getElementById('p-sizes').value = p.sizes.join(', ');
+                    document.getElementById('p-sizes').value = p.sizes.join(',');
                     p.variants.forEach(v => this.addVariantRow(v.color, v.img));
                 } else {
                     document.getElementById('p-name').value = ''; document.getElementById('p-price').value = ''; document.getElementById('p-sizes').value = '';
                     this.addVariantRow();
                 }
             },
-
-            addVariantRow(c = '', i = '') {
-                const div = document.createElement('div');
-                div.style = "display: flex; gap: 10px; margin-bottom: 5px;";
-                div.innerHTML = `<input type="text" placeholder="Color" value="${c}" class="v-c"><input type="text" placeholder="Img URL" value="${i}" class="v-i">`;
-                document.getElementById('variant-list').appendChild(div);
+            addVariantRow(c='', i='') {
+                const d = document.createElement('div'); d.style = "display:flex; gap:10px; margin-bottom:5px;";
+                d.innerHTML = `<input type="text" placeholder="Color" value="${c}" class="v-c"><input type="text" placeholder="Photo URL" value="${i}" class="v-i">`;
+                document.getElementById('variant-rows').appendChild(d);
             },
-
             save() {
-                const variants = Array.from(document.querySelectorAll('#variant-list > div')).map(row => ({
-                    color: row.querySelector('.v-c').value.trim(),
-                    img: row.querySelector('.v-i').value.trim()
+                const vars = Array.from(document.querySelectorAll('#variant-rows > div')).map(r => ({
+                    color: r.querySelector('.v-c').value.trim(), img: r.querySelector('.v-i').value.trim()
                 })).filter(v => v.color && v.img);
-
                 const data = {
-                    id: editId || Date.now().toString(),
-                    name: document.getElementById('p-name').value,
-                    price: document.getElementById('p-price').value,
-                    sizes: document.getElementById('p-sizes').value.split(',').map(s => s.trim()),
-                    variants: variants,
+                    id: editId || Date.now().toString(), name: document.getElementById('p-name').value, price: document.getElementById('p-price').value,
+                    sizes: document.getElementById('p-sizes').value.split(',').map(s => s.trim()), variants: vars,
                     active: editId ? products.find(x => x.id === editId).active : false
                 };
-
-                if(editId) products = products.map(p => p.id === editId ? data : p);
-                else products.push(data);
-
+                if(editId) products = products.map(p => p.id === editId ? data : p); else products.push(data);
                 app.sync(); this.closeModal(); this.renderList();
             },
-
             toggle(id) { const p = products.find(x => x.id === id); p.active = !p.active; app.sync(); this.renderList(); },
-            delete(id) { if(confirm('Del?')) { products = products.filter(x => x.id !== id); app.sync(); this.renderList(); } },
+            del(id) { if(confirm('Delete?')) { products = products.filter(x => x.id !== id); app.sync(); this.renderList(); } },
             closeModal() { document.getElementById('admin-modal').classList.add('hidden'); }
         };
 
