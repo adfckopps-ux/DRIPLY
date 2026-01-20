@@ -28,13 +28,13 @@
 
 <div id="app">
     <nav class="sticky top-0 z-[60] px-6 py-4 flex justify-between items-center glass">
-        <div class="font-drip text-2xl tracking-tighter cursor-pointer" @click="scrollToTop">DRIPLY</div>
+        <div class="font-drip text-2xl tracking-tighter cursor-pointer" @click="currentCategory = 'all'; scrollToTop()">DRIPLY</div>
         
         <div class="hidden md:flex space-x-8 items-center text-[11px] font-black uppercase tracking-widest">
-            <a href="#shop" class="hover:text-drip transition">Collection</a>
+            <button @click="currentCategory = 'all'" :class="currentCategory === 'all' ? 'text-drip' : ''">All</button>
             <template v-if="isLoggedIn">
                 <button @click="adminTab = 'orders'" :class="adminTab === 'orders' ? 'text-drip' : ''">Orders</button>
-                <button @click="adminTab = 'add_product'" :class="adminTab === 'add_product' ? 'text-drip' : ''">Add Product</button>
+                <button @click="adminTab = 'add_product'" :class="adminTab === 'add_product' ? 'text-drip' : ''">Manage Inventory</button>
                 <button @click="logout" class="text-red-500">Logout</button>
             </template>
             <button v-else @click="showLogin = true" class="bg-white text-black px-4 py-1.5 hover:bg-drip transition-colors">Staff Login</button>
@@ -51,15 +51,14 @@
             <div class="flex justify-between items-center mb-16"><div class="font-drip text-2xl">DRIPLY</div><button @click="showMobileMenu = false" class="text-4xl">×</button></div>
             <div class="flex flex-col space-y-6 font-drip text-xl">
                 <p class="text-[10px] text-gray-500 font-black tracking-widest">CATEGORIES</p>
-                <a href="#shop" @click="showMobileMenu = false">JACKETS & HOODIES</a>
-                <a href="#shop" @click="showMobileMenu = false">JEANS</a>
-                <a href="#shop" @click="showMobileMenu = false">ACCESSORIES</a>
+                <button @click="currentCategory = 'Jackets'; showMobileMenu = false" class="text-left">JACKETS & HOODIES</button>
+                <button @click="currentCategory = 'Jeans'; showMobileMenu = false" class="text-left">JEANS</button>
+                <button @click="currentCategory = 'Accessories'; showMobileMenu = false" class="text-left">ACCESSORIES</button>
                 <div v-if="isLoggedIn" class="pt-10 border-t border-white/10 flex flex-col space-y-4">
                     <button @click="adminTab = 'orders'; showMobileMenu = false" class="text-left text-drip">MANAGE ORDERS</button>
-                    <button @click="adminTab = 'add_product'; showMobileMenu = false" class="text-left text-drip">ADD NEW PRODUCT</button>
+                    <button @click="adminTab = 'add_product'; showMobileMenu = false" class="text-left text-drip">INVENTORY</button>
                     <button @click="logout(); showMobileMenu = false" class="text-left text-red-500">LOGOUT</button>
                 </div>
-                <button v-else @click="showLogin = true; showMobileMenu = false" class="text-left text-sm text-drip pt-10 border-t border-white/10">STAFF LOGIN</button>
             </div>
         </div>
     </transition>
@@ -68,64 +67,79 @@
         <h2 class="font-drip text-xl mb-6 text-drip">Incoming_Orders</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div v-for="(order, index) in orders" :key="index" class="bg-black p-4 border border-white/10">
-                <div class="flex justify-between mb-4">
-                    <span :class="order.paid ? 'text-green-500' : 'text-yellow-500'" class="text-[10px] font-bold">{{ order.paid ? '● PAID' : '○ PENDING' }}</span>
-                    <button @click="deleteOrder(index)" class="text-red-500 text-[9px]">DELETE</button>
-                </div>
+                <div class="flex justify-between mb-4"><span :class="order.paid ? 'text-green-500' : 'text-yellow-500'" class="text-[10px] font-bold uppercase">{{ order.paid ? '● PAID' : '○ PENDING' }}</span><button @click="deleteOrder(index)" class="text-red-500 text-[9px]">DELETE</button></div>
                 <p class="text-sm"><strong>{{order.name}}</strong></p>
                 <p class="text-xs text-gray-400">{{order.address}}</p>
                 <p class="text-xs mt-2 text-drip italic">{{order.items}}</p>
-                <button v-if="!order.paid" @click="markAsPaid(index)" class="mt-4 w-full bg-drip text-black py-2 text-[10px] font-black uppercase">Mark as Paid</button>
+                <button v-if="!order.paid" @click="markAsPaid(index)" class="mt-4 w-full bg-drip text-black py-2 text-[10px] font-black uppercase">Verify Payment</button>
             </div>
         </div>
     </div>
 
     <div v-if="isLoggedIn && adminTab === 'add_product'" class="bg-zinc-900 border-b border-drip/30 p-8">
         <h2 class="font-drip text-xl mb-6 text-drip">Product_Manager</h2>
-        <div class="max-w-xl bg-black p-6 border border-white/10">
-            <div class="grid grid-cols-1 gap-4">
-                <input v-model="newProduct.name" type="text" placeholder="Item Name (e.g. Leather Jacket)" class="bg-zinc-900 border border-white/10 p-4 text-sm outline-none focus:border-drip">
-                <input v-model="newProduct.price" type="text" placeholder="Price (e.g. 150.00)" class="bg-zinc-900 border border-white/10 p-4 text-sm outline-none focus:border-drip">
-                <input v-model="newProduct.image" type="text" placeholder="Image URL (Link to photo)" class="bg-zinc-900 border border-white/10 p-4 text-sm outline-none focus:border-drip">
-                <button @click="addNewProduct" class="bg-drip text-black py-4 font-black uppercase text-xs">Publish to Store</button>
-            </div>
+        <div class="max-w-2xl bg-black p-6 border border-white/10 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input v-model="newProduct.name" type="text" placeholder="Item Name" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none">
+            <select v-model="newProduct.category" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none text-gray-400">
+                <option value="Jackets">Jackets & Hoodies</option>
+                <option value="Jeans">Jeans</option>
+                <option value="Accessories">Accessories</option>
+            </select>
+            <input v-model="newProduct.price" type="number" placeholder="Original Price" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none">
+            <input v-model="newProduct.discountPrice" type="number" placeholder="Discount Price (Optional)" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none">
+            <input v-model="newProduct.images" type="text" placeholder="Image URLs (Comma separated)" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none md:col-span-2">
+            <button @click="addNewProduct" class="bg-drip text-black py-4 font-black uppercase text-xs md:col-span-2">Publish Product</button>
         </div>
     </div>
 
-    <header class="relative h-[80vh] flex items-center px-6 md:px-20 overflow-hidden">
-        <div class="z-10 w-full">
-            <h1 class="text-6xl md:text-[120px] font-drip leading-[0.8] mb-4">DRIP SEASON</h1>
-            <p class="text-lg md:text-xl mb-8 text-gray-400">Next-Gen Streetwear Collective.</p>
-            <button @click="scrollToProducts" class="bg-drip text-black px-10 py-4 font-black text-xs uppercase">Explore Drop</button>
-        </div>
-        <div class="absolute right-0 top-0 w-full md:w-1/2 h-full opacity-30 grayscale pointer-events-none"><img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?auto=format&fit=crop&q=80" class="w-full h-full object-cover"></div>
-    </header>
-
     <section id="shop" class="py-20 px-6 md:px-20 bg-[#050505]">
+        <h2 class="font-drip text-3xl mb-12 text-center text-drip">{{currentCategory}}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            <div v-for="(product, index) in products" :key="index" class="reveal group relative">
-                <button v-if="isLoggedIn" @click="deleteProduct(index)" class="absolute top-2 right-2 z-10 bg-red-600 text-white px-2 py-1 text-[9px] font-black">REMOVE ITEM</button>
-                <div class="aspect-[3/4] overflow-hidden bg-neutral-900 mb-4 border border-white/5"><img :src="product.image" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-1000"></div>
+            <div v-for="(product, index) in filteredProducts" :key="index" class="reveal group relative">
+                <button v-if="isLoggedIn" @click="deleteProduct(index)" class="absolute top-2 right-2 z-10 bg-red-600 text-white px-2 py-1 text-[9px] font-black">DELETE</button>
+                
+                <div @click="openGallery(product)" class="aspect-[3/4] overflow-hidden bg-neutral-900 mb-4 border border-white/5 cursor-zoom-in">
+                    <img :src="product.images.split(',')[0]" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-1000">
+                </div>
+                
                 <div class="flex justify-between items-start">
-                    <div><h3 class="font-black text-sm uppercase">{{ product.name }}</h3><p class="text-gray-500 font-bold">${{ product.price }}</p></div>
+                    <div>
+                        <h3 class="font-black text-sm uppercase">{{ product.name }}</h3>
+                        <div class="flex space-x-2 items-center">
+                            <p :class="product.discountPrice ? 'line-through text-gray-600 text-xs' : 'text-gray-400 font-bold'">${{ product.price }}</p>
+                            <p v-if="product.discountPrice" class="text-drip font-black">${{ product.discountPrice }}</p>
+                        </div>
+                    </div>
                     <button @click="addToCart(product)" class="bg-white text-black px-4 py-2 text-[10px] font-black uppercase hover:bg-drip">Add</button>
                 </div>
             </div>
         </div>
     </section>
 
+    <div v-if="activeGalleryProduct" class="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center">
+        <button @click="activeGalleryProduct = null" class="absolute top-8 right-8 text-5xl font-light hover:text-drip">×</button>
+        <div class="w-full max-w-2xl px-6 relative flex flex-col items-center">
+            <img :src="activeGalleryProduct.images.split(',')[galleryIndex]" class="max-h-[70vh] w-auto object-contain shadow-2xl transition-all duration-500">
+            <div class="flex mt-8 space-x-10 items-center">
+                <button @click="prevImg" class="text-3xl hover:text-drip">←</button>
+                <p class="text-[10px] font-black tracking-widest">{{galleryIndex + 1}} / {{activeGalleryProduct.images.split(',').length}}</p>
+                <button @click="nextImg" class="text-3xl hover:text-drip">→</button>
+            </div>
+        </div>
+    </div>
+
     <div v-if="showCart" class="fixed inset-0 z-[100] flex justify-end">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="showCart = false"></div>
-        <div class="relative w-full max-w-md bg-neutral-900 h-full flex flex-col shadow-2xl">
+        <div class="relative w-full max-w-md bg-neutral-900 h-full flex flex-col">
             <div class="p-6 flex justify-between items-center border-b border-white/10"><h2 class="font-drip text-xl text-drip">BAG</h2><button @click="showCart = false" class="text-4xl px-4">×</button></div>
-            <div class="flex-1 overflow-y-auto p-8 space-y-6">
-                <div v-for="(item, i) in cart" :key="i" class="flex justify-between items-center border-b border-white/10 pb-4">
-                    <div class="flex items-center space-x-4"><img :src="item.image" class="w-12 h-16 object-cover border border-white/5"><div><p class="text-[10px] font-bold uppercase">{{item.name}}</p><p class="text-[10px] text-gray-500">${{item.price}}</p></div></div>
-                    <button @click="cart.splice(i, 1)" class="text-[10px] text-red-500 font-bold uppercase">Remove</button>
+            <div class="flex-1 overflow-y-auto p-8">
+                <div v-for="(item, i) in cart" :key="i" class="flex justify-between items-center border-b border-white/10 pb-4 mb-4">
+                    <div class="flex items-center space-x-4"><img :src="item.images.split(',')[0]" class="w-12 h-16 object-cover"><div><p class="text-[10px] font-bold">{{item.name}}</p><p class="text-[10px] text-drip">${{item.discountPrice || item.price}}</p></div></div>
+                    <button @click="cart.splice(i, 1)" class="text-[10px] text-red-500">REMOVE</button>
                 </div>
                 <div v-if="cart.length > 0" class="mt-8 border-t border-white/10 pt-6">
-                    <input v-model="customer.name" type="text" placeholder="Full Name" class="w-full bg-black border border-white/10 p-4 text-xs mb-3 outline-none focus:border-drip">
-                    <input v-model="customer.address" type="text" placeholder="Full Shipping Address" class="w-full bg-black border border-white/10 p-4 text-xs outline-none focus:border-drip">
+                    <input v-model="customer.name" type="text" placeholder="Full Name" class="w-full bg-black border border-white/10 p-4 text-xs mb-3 outline-none">
+                    <input v-model="customer.address" type="text" placeholder="Full Shipping Address" class="w-full bg-black border border-white/10 p-4 text-xs outline-none">
                 </div>
             </div>
             <div class="p-8 border-t border-white/10"><div class="flex justify-between font-bold mb-6 italic tracking-widest text-lg"><span>TOTAL</span><span class="text-drip">${{ cartTotal }}</span></div><button @click="checkout" class="w-full bg-drip text-black py-5 font-black text-xs uppercase">Pay with PayPal</button></div>
@@ -151,22 +165,35 @@
             const showCart = ref(false);
             const showMobileMenu = ref(false);
             const adminTab = ref('orders');
+            const currentCategory = ref('all');
+            
+            // Gallery State
+            const activeGalleryProduct = ref(null);
+            const galleryIndex = ref(0);
             
             const loginUser = ref('');
             const loginPass = ref('');
-            
             const customer = ref({ name: '', address: '' });
             const cart = ref([]);
-            const newProduct = ref({ name: '', price: '', image: '' });
+            const newProduct = ref({ name: '', price: '', discountPrice: '', images: '', category: 'Jackets' });
             
             const products = ref(JSON.parse(localStorage.getItem('driply_products')) || [
-                { name: 'Matrix Winter Parka', price: '180.00', image: 'https://images.unsplash.com/photo-1545594944-54877397e066?auto=format&fit=crop&q=80' },
-                { name: 'Driply Tech Shell', price: '140.00', image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80' },
-                { name: 'Heavyweight Hoodie', price: '95.00', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80' }
+                { name: 'Matrix Winter Parka', price: '180.00', discountPrice: '150.00', images: 'https://images.unsplash.com/photo-1545594944-54877397e066?auto=format&fit=crop&q=80', category: 'Jackets' },
+                { name: 'Cargo Tech Jeans', price: '120.00', images: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80', category: 'Jeans' },
+                { name: 'Utility Belt', price: '45.00', images: 'https://images.unsplash.com/photo-1624222247344-550fb8ec970d?auto=format&fit=crop&q=80', category: 'Accessories' }
             ]);
 
+            const filteredProducts = computed(() => {
+                if (currentCategory.value === 'all') return products.value;
+                return products.value.filter(p => p.category === currentCategory.value);
+            });
+
             const orders = ref(JSON.parse(localStorage.getItem('driply_orders') || '[]'));
-            const cartTotal = computed(() => cart.value.reduce((acc, item) => acc + parseFloat(item.price), 0).toFixed(2));
+            const cartTotal = computed(() => cart.value.reduce((acc, item) => acc + parseFloat(item.discountPrice || item.price), 0).toFixed(2));
+
+            const openGallery = (p) => { activeGalleryProduct.value = p; galleryIndex.value = 0; };
+            const nextImg = () => { const len = activeGalleryProduct.value.images.split(',').length; galleryIndex.value = (galleryIndex.value + 1) % len; };
+            const prevImg = () => { const len = activeGalleryProduct.value.images.split(',').length; galleryIndex.value = (galleryIndex.value - 1 + len) % len; };
 
             const handleLogin = () => {
                 if(loginUser.value === 'Tourya' && loginPass.value === 'Philipo21') { isLoggedIn.value = true; showLogin.value = false; } 
@@ -174,16 +201,11 @@
             };
 
             const addNewProduct = () => {
-                if(!newProduct.value.name || !newProduct.value.price || !newProduct.value.image) return alert("Fill all fields");
+                if(!newProduct.value.name || !newProduct.value.price || !newProduct.value.images) return alert("Fill Name, Price, and Images");
                 products.value.push({...newProduct.value});
                 localStorage.setItem('driply_products', JSON.stringify(products.value));
-                newProduct.value = { name: '', price: '', image: '' };
+                newProduct.value = { name: '', price: '', discountPrice: '', images: '', category: 'Jackets' };
                 alert("Product Added!");
-            };
-
-            const deleteProduct = (index) => {
-                products.value.splice(index, 1);
-                localStorage.setItem('driply_products', JSON.stringify(products.value));
             };
 
             const checkout = () => {
@@ -195,11 +217,11 @@
                 cart.value = []; showCart.value = false;
             };
 
-            const markAsPaid = (i) => { orders.value[i].paid = true; localStorage.setItem('driply_orders', JSON.stringify(orders.value)); };
             const logout = () => { isLoggedIn.value = false; };
             const addToCart = (p) => { cart.value.push({...p}); showCart.value = true; };
+            const deleteProduct = (i) => { products.value.splice(i,1); localStorage.setItem('driply_products', JSON.stringify(products.value)); };
             const deleteOrder = (i) => { orders.value.splice(i,1); localStorage.setItem('driply_orders', JSON.stringify(orders.value)); };
-            const scrollToProducts = () => document.getElementById('shop').scrollIntoView({ behavior: 'smooth' });
+            const markAsPaid = (i) => { orders.value[i].paid = true; localStorage.setItem('driply_orders', JSON.stringify(orders.value)); };
             const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
             onMounted(() => { 
@@ -209,7 +231,7 @@
                 }); 
             });
 
-            return { isLoggedIn, showLogin, showCart, showMobileMenu, adminTab, loginUser, loginPass, customer, products, cart, cartTotal, orders, newProduct, handleLogin, logout, addToCart, checkout, markAsPaid, deleteOrder, scrollToProducts, scrollToTop, addNewProduct, deleteProduct };
+            return { isLoggedIn, showLogin, showCart, showMobileMenu, adminTab, loginUser, loginPass, customer, products, cart, cartTotal, orders, newProduct, currentCategory, filteredProducts, activeGalleryProduct, galleryIndex, openGallery, nextImg, prevImg, handleLogin, logout, addToCart, checkout, markAsPaid, deleteOrder, scrollToTop, addNewProduct, deleteProduct };
         }
     }).mount('#app');
 </script>
