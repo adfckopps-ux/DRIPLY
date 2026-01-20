@@ -3,237 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DRIPLY | Store Management</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
+    <title>DRIPLY | Streetwear Essentials</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@400;900&display=swap');
-        :root { --drip-yellow: #e2fb2d; }
-        body { font-family: 'Inter', sans-serif; background-color: #000; color: white; overflow-x: hidden; }
-        .bg-drip { background-color: var(--drip-yellow); }
-        .text-drip { color: var(--drip-yellow); }
-        .font-drip { font-family: 'Syncopate', sans-serif; text-transform: uppercase; letter-spacing: -2px; }
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s ease-out; }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-        .glass { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .menu-enter-active, .menu-leave-active { transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1); }
-        .menu-enter-from, .menu-leave-to { transform: translateX(100%); }
+        :root {
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --primary: #ffffff;
+            --accent: #ff3e3e;
+            --text-muted: #888;
+            --border: #222;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* UI Helpers */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        .hidden { display: none !important; }
+        .btn {
+            background: var(--primary);
+            color: var(--bg);
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-danger { background: var(--accent); color: white; }
+
+        /* Navigation */
+        nav {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; cursor: pointer; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+        .cart-count { background: var(--accent); font-size: 0.7rem; padding: 2px 6px; border-radius: 50%; margin-left: 5px; }
+
+        /* Hero Section */
+        #home { padding: 10rem 0; text-align: center; }
+        .hero-title { font-size: clamp(3rem, 10vw, 8rem); font-weight: 900; line-height: 0.9; margin-bottom: 2rem; }
+
+        /* Product Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 4rem 0;
+        }
+        .product-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+        }
+        .product-card:hover { border-color: #444; }
+        .product-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+        .product-info { padding: 1.5rem; }
+        .product-name { font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .price-tag { font-weight: 400; color: var(--text-muted); }
+        .discount-badge {
+            position: absolute; top: 1rem; right: 1rem;
+            background: var(--accent); color: white;
+            padding: 0.2rem 0.6rem; font-size: 0.8rem; font-weight: 700;
+        }
+        .empty-state { text-align: center; padding: 5rem 0; color: var(--text-muted); font-size: 1.2rem; }
+
+        /* Cart & Checkout */
+        .cart-item {
+            display: grid; grid-template-columns: 80px 1fr auto auto;
+            align-items: center; gap: 1.5rem; padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .qty-ctrl { display: flex; align-items: center; gap: 10px; }
+        .qty-btn { background: var(--surface); border: 1px solid var(--border); color: white; width: 30px; height: 30px; cursor: pointer; }
+        
+        .checkout-grid { display: grid; grid-template-columns: 1fr 400px; gap: 4rem; padding: 4rem 0; }
+        input, select {
+            width: 100%; background: var(--surface); border: 1px solid var(--border);
+            padding: 1rem; color: white; margin-bottom: 1rem;
+        }
+
+        /* Admin */
+        .admin-panel { padding: 2rem 0; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 2rem; }
+        .admin-table th, .admin-table td { 
+            padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); 
+        }
+        .status-toggle { cursor: pointer; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+        .status-active { background: #2ecc71; color: black; }
+        .status-inactive { background: #e74c3c; color: white; }
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal-content { background: var(--surface); padding: 2rem; width: 100%; max-width: 500px; border: 1px solid var(--border); }
+
+        @media (max-width: 768px) {
+            .checkout-grid { grid-template-columns: 1fr; }
+            .nav-links a:not(.cart-link) { display: none; }
+        }
     </style>
 </head>
 <body>
 
-<div id="app">
-    <nav class="sticky top-0 z-[60] px-6 py-4 flex justify-between items-center glass">
-        <div class="font-drip text-2xl tracking-tighter cursor-pointer" @click="currentCategory = 'all'; scrollToTop()">DRIPLY</div>
-        
-        <div class="hidden md:flex space-x-8 items-center text-[11px] font-black uppercase tracking-widest">
-            <button @click="currentCategory = 'all'" :class="currentCategory === 'all' ? 'text-drip' : ''">All</button>
-            <template v-if="isLoggedIn">
-                <button @click="adminTab = 'orders'" :class="adminTab === 'orders' ? 'text-drip' : ''">Orders</button>
-                <button @click="adminTab = 'add_product'" :class="adminTab === 'add_product' ? 'text-drip' : ''">Manage Inventory</button>
-                <button @click="logout" class="text-red-500">Logout</button>
-            </template>
-            <button v-else @click="showLogin = true" class="bg-white text-black px-4 py-1.5 hover:bg-drip transition-colors">Staff Login</button>
-        </div>
-
-        <div class="flex items-center space-x-6">
-            <div @click="showCart = true" class="relative cursor-pointer"><span class="text-xl">🛒</span><span v-if="cart.length > 0" class="absolute -top-2 -right-2 bg-drip text-black text-[10px] font-bold px-1.5 rounded-full">{{ cart.length }}</span></div>
-            <button @click="showMobileMenu = true" class="md:hidden text-2xl">☰</button>
+    <nav>
+        <div class="container nav-content">
+            <div class="logo" onclick="router.navigate('home')">DRIPLY</div>
+            <div class="nav-links">
+                <a onclick="router.navigate('shop')">SHOP</a>
+                <a onclick="router.navigate('admin-login')">ADMIN</a>
+                <a onclick="router.navigate('cart')" class="cart-link">CART <span class="cart-count" id="cart-count">0</span></a>
+            </div>
         </div>
     </nav>
 
-    <transition name="menu">
-        <div v-if="showMobileMenu" class="fixed inset-0 z-[100] bg-black flex flex-col p-10">
-            <div class="flex justify-between items-center mb-16"><div class="font-drip text-2xl">DRIPLY</div><button @click="showMobileMenu = false" class="text-4xl">×</button></div>
-            <div class="flex flex-col space-y-6 font-drip text-xl">
-                <p class="text-[10px] text-gray-500 font-black tracking-widest">CATEGORIES</p>
-                <button @click="currentCategory = 'Jackets'; showMobileMenu = false" class="text-left">JACKETS & HOODIES</button>
-                <button @click="currentCategory = 'Jeans'; showMobileMenu = false" class="text-left">JEANS</button>
-                <button @click="currentCategory = 'Accessories'; showMobileMenu = false" class="text-left">ACCESSORIES</button>
-                <div v-if="isLoggedIn" class="pt-10 border-t border-white/10 flex flex-col space-y-4">
-                    <button @click="adminTab = 'orders'; showMobileMenu = false" class="text-left text-drip">MANAGE ORDERS</button>
-                    <button @click="adminTab = 'add_product'; showMobileMenu = false" class="text-left text-drip">INVENTORY</button>
-                    <button @click="logout(); showMobileMenu = false" class="text-left text-red-500">LOGOUT</button>
+    <main id="app">
+        <section id="view-home" class="view">
+            <div class="container">
+                <div id="home">
+                    <h1 class="hero-title">DROP <br>TWENTY SIX</h1>
+                    <button class="btn" onclick="router.navigate('shop')">Shop Collection</button>
                 </div>
             </div>
-        </div>
-    </transition>
+        </section>
 
-    <div v-if="isLoggedIn && adminTab === 'orders'" class="bg-zinc-900 border-b border-drip/30 p-8">
-        <h2 class="font-drip text-xl mb-6 text-drip">Incoming_Orders</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div v-for="(order, index) in orders" :key="index" class="bg-black p-4 border border-white/10">
-                <div class="flex justify-between mb-4"><span :class="order.paid ? 'text-green-500' : 'text-yellow-500'" class="text-[10px] font-bold uppercase">{{ order.paid ? '● PAID' : '○ PENDING' }}</span><button @click="deleteOrder(index)" class="text-red-500 text-[9px]">DELETE</button></div>
-                <p class="text-sm"><strong>{{order.name}}</strong></p>
-                <p class="text-xs text-gray-400">{{order.address}}</p>
-                <p class="text-xs mt-2 text-drip italic">{{order.items}}</p>
-                <button v-if="!order.paid" @click="markAsPaid(index)" class="mt-4 w-full bg-drip text-black py-2 text-[10px] font-black uppercase">Verify Payment</button>
+        <section id="view-shop" class="view hidden">
+            <div class="container">
+                <h2 style="margin-top: 4rem;">ALL PRODUCTS</h2>
+                <div id="product-list" class="grid"></div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <div v-if="isLoggedIn && adminTab === 'add_product'" class="bg-zinc-900 border-b border-drip/30 p-8">
-        <h2 class="font-drip text-xl mb-6 text-drip">Product_Manager</h2>
-        <div class="max-w-2xl bg-black p-6 border border-white/10 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input v-model="newProduct.name" type="text" placeholder="Item Name" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none">
-            <select v-model="newProduct.category" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none text-gray-400">
-                <option value="Jackets">Jackets & Hoodies</option>
-                <option value="Jeans">Jeans</option>
-                <option value="Accessories">Accessories</option>
-            </select>
-            <input v-model="newProduct.price" type="number" placeholder="Original Price" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none">
-            <input v-model="newProduct.discountPrice" type="number" placeholder="Discount Price (Optional)" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none">
-            <input v-model="newProduct.images" type="text" placeholder="Image URLs (Comma separated)" class="bg-zinc-900 border border-white/10 p-3 text-sm outline-none md:col-span-2">
-            <button @click="addNewProduct" class="bg-drip text-black py-4 font-black uppercase text-xs md:col-span-2">Publish Product</button>
-        </div>
-    </div>
-
-    <section id="shop" class="py-20 px-6 md:px-20 bg-[#050505]">
-        <h2 class="font-drip text-3xl mb-12 text-center text-drip">{{currentCategory}}</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            <div v-for="(product, index) in filteredProducts" :key="index" class="reveal group relative">
-                <button v-if="isLoggedIn" @click="deleteProduct(index)" class="absolute top-2 right-2 z-10 bg-red-600 text-white px-2 py-1 text-[9px] font-black">DELETE</button>
-                
-                <div @click="openGallery(product)" class="aspect-[3/4] overflow-hidden bg-neutral-900 mb-4 border border-white/5 cursor-zoom-in">
-                    <img :src="product.images.split(',')[0]" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-1000">
+        <section id="view-cart" class="view hidden">
+            <div class="container" style="padding: 4rem 2rem;">
+                <h2>YOUR BAG</h2>
+                <div id="cart-items"></div>
+                <div id="cart-summary" class="hidden" style="margin-top: 2rem; text-align: right;">
+                    <h3 id="cart-total" style="margin-bottom: 2rem;"></h3>
+                    <button class="btn" onclick="router.navigate('checkout')">Proceed to Checkout</button>
                 </div>
-                
-                <div class="flex justify-between items-start">
+                <div id="cart-empty" class="empty-state">Your bag is empty.</div>
+            </div>
+        </section>
+
+        <section id="view-checkout" class="view hidden">
+            <div class="container">
+                <div class="checkout-grid">
                     <div>
-                        <h3 class="font-black text-sm uppercase">{{ product.name }}</h3>
-                        <div class="flex space-x-2 items-center">
-                            <p :class="product.discountPrice ? 'line-through text-gray-600 text-xs' : 'text-gray-400 font-bold'">${{ product.price }}</p>
-                            <p v-if="product.discountPrice" class="text-drip font-black">${{ product.discountPrice }}</p>
+                        <h2>SHIPPING DETAILS</h2>
+                        <form id="checkout-form" style="margin-top: 2rem;">
+                            <input type="text" placeholder="Full Name" required id="chk-name">
+                            <input type="text" placeholder="Street Address" required id="chk-addr">
+                            <div style="display: flex; gap: 1rem;">
+                                <input type="text" placeholder="City" required id="chk-city">
+                                <input type="text" placeholder="ZIP Code" required id="chk-zip">
+                            </div>
+                            <input type="text" placeholder="Country" required id="chk-country">
+                            <button type="submit" class="btn" style="width: 100%;">Pay & Order</button>
+                        </form>
+                    </div>
+                    <div id="order-summary" style="background: var(--surface); padding: 2rem;">
+                        <h3>ORDER SUMMARY</h3>
+                        <div id="summary-list"></div>
+                        <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0;">
+                        <div id="summary-totals"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-admin-login" class="view hidden">
+            <div class="container" style="max-width: 400px; padding: 10rem 0;">
+                <h2 style="text-align: center; margin-bottom: 2rem;">STAFF ACCESS</h2>
+                <form id="login-form">
+                    <input type="text" id="adm-user" placeholder="Username" required>
+                    <input type="password" id="adm-pass" placeholder="Password" required>
+                    <button class="btn" style="width: 100%;">Login</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="view-admin-dashboard" class="view hidden">
+            <div class="container admin-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>INVENTORY MANAGEMENT</h2>
+                    <button class="btn" onclick="admin.openModal()">+ Add Product</button>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Discount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-product-list"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Add Product</h3>
+            <form id="product-form" style="margin-top: 1.5rem;">
+                <input type="hidden" id="edit-id">
+                <input type="text" id="p-name" placeholder="Product Name" required>
+                <input type="url" id="p-img" placeholder="Image URL (Unsplash or similar)" required>
+                <input type="number" id="p-price" placeholder="Price (USD)" step="0.01" required>
+                <input type="number" id="p-discount" placeholder="Discount % (Optional)" value="0">
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn btn-outline" onclick="admin.closeModal()" style="flex:1">Cancel</button>
+                    <button type="submit" class="btn" style="flex:1">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STATE ---
+        let products = JSON.parse(localStorage.getItem('drip_products')) || [];
+        let cart = JSON.parse(localStorage.getItem('drip_cart')) || [];
+
+        // --- ROUTER SYSTEM ---
+        const router = {
+            current: 'home',
+            navigate(view) {
+                document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+                document.getElementById(`view-${view}`).classList.remove('hidden');
+                this.current = view;
+                window.scrollTo(0,0);
+                if(view === 'shop') renderShop();
+                if(view === 'cart') renderCart();
+                if(view === 'checkout') renderCheckout();
+                if(view === 'admin-dashboard') admin.renderDashboard();
+            }
+        };
+
+        // --- STORE LOGIC ---
+        function renderShop() {
+            const container = document.getElementById('product-list');
+            const activeProducts = products.filter(p => p.active);
+            
+            if (activeProducts.length === 0) {
+                container.innerHTML = `<div class="empty-state">Products coming soon</div>`;
+                return;
+            }
+
+            container.innerHTML = activeProducts.map(p => {
+                const hasDiscount = p.discount > 0;
+                const finalPrice = hasDiscount ? p.price * (1 - p.discount/100) : p.price;
+                return `
+                    <div class="product-card">
+                        ${hasDiscount ? `<div class="discount-badge">-${p.discount}%</div>` : ''}
+                        <img src="${p.img}" class="product-img" alt="${p.name}">
+                        <div class="product-info">
+                            <div class="product-name">${p.name}</div>
+                            <div class="price-tag">
+                                ${hasDiscount ? `<span style="text-decoration: line-through; margin-right: 8px;">$${p.price}</span>` : ''}
+                                <span style="color: white; font-weight: 700;">$${finalPrice.toFixed(2)}</span>
+                            </div>
+                            <button class="btn-outline" style="width: 100%; margin-top: 1rem; padding: 0.5rem;" onclick="addToCart('${p.id}')">Add to Bag</button>
                         </div>
                     </div>
-                    <button @click="addToCart(product)" class="bg-white text-black px-4 py-2 text-[10px] font-black uppercase hover:bg-drip">Add</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div v-if="activeGalleryProduct" class="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center">
-        <button @click="activeGalleryProduct = null" class="absolute top-8 right-8 text-5xl font-light hover:text-drip">×</button>
-        <div class="w-full max-w-2xl px-6 relative flex flex-col items-center">
-            <img :src="activeGalleryProduct.images.split(',')[galleryIndex]" class="max-h-[70vh] w-auto object-contain shadow-2xl transition-all duration-500">
-            <div class="flex mt-8 space-x-10 items-center">
-                <button @click="prevImg" class="text-3xl hover:text-drip">←</button>
-                <p class="text-[10px] font-black tracking-widest">{{galleryIndex + 1}} / {{activeGalleryProduct.images.split(',').length}}</p>
-                <button @click="nextImg" class="text-3xl hover:text-drip">→</button>
-            </div>
-        </div>
-    </div>
-
-    <div v-if="showCart" class="fixed inset-0 z-[100] flex justify-end">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="showCart = false"></div>
-        <div class="relative w-full max-w-md bg-neutral-900 h-full flex flex-col">
-            <div class="p-6 flex justify-between items-center border-b border-white/10"><h2 class="font-drip text-xl text-drip">BAG</h2><button @click="showCart = false" class="text-4xl px-4">×</button></div>
-            <div class="flex-1 overflow-y-auto p-8">
-                <div v-for="(item, i) in cart" :key="i" class="flex justify-between items-center border-b border-white/10 pb-4 mb-4">
-                    <div class="flex items-center space-x-4"><img :src="item.images.split(',')[0]" class="w-12 h-16 object-cover"><div><p class="text-[10px] font-bold">{{item.name}}</p><p class="text-[10px] text-drip">${{item.discountPrice || item.price}}</p></div></div>
-                    <button @click="cart.splice(i, 1)" class="text-[10px] text-red-500">REMOVE</button>
-                </div>
-                <div v-if="cart.length > 0" class="mt-8 border-t border-white/10 pt-6">
-                    <input v-model="customer.name" type="text" placeholder="Full Name" class="w-full bg-black border border-white/10 p-4 text-xs mb-3 outline-none">
-                    <input v-model="customer.address" type="text" placeholder="Full Shipping Address" class="w-full bg-black border border-white/10 p-4 text-xs outline-none">
-                </div>
-            </div>
-            <div class="p-8 border-t border-white/10"><div class="flex justify-between font-bold mb-6 italic tracking-widest text-lg"><span>TOTAL</span><span class="text-drip">${{ cartTotal }}</span></div><button @click="checkout" class="w-full bg-drip text-black py-5 font-black text-xs uppercase">Pay with PayPal</button></div>
-        </div>
-    </div>
-
-    <div v-if="showLogin" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-6">
-        <div class="bg-white text-black p-10 w-full max-w-xs border-t-8 border-drip shadow-2xl">
-            <h2 class="font-drip text-xl mb-6 text-center">STAFF_LOGIN</h2>
-            <input v-model="loginUser" type="text" placeholder="Username" class="w-full border p-4 mb-3 font-bold text-xs outline-none focus:border-black transition">
-            <input v-model="loginPass" type="password" placeholder="Password" class="w-full border p-4 mb-6 font-bold text-xs outline-none focus:border-black transition">
-            <button @click="handleLogin" class="w-full bg-black text-white py-4 font-black uppercase text-[10px]">Login</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    const { createApp, ref, computed, onMounted } = Vue;
-    createApp({
-        setup() {
-            const isLoggedIn = ref(false);
-            const showLogin = ref(false);
-            const showCart = ref(false);
-            const showMobileMenu = ref(false);
-            const adminTab = ref('orders');
-            const currentCategory = ref('all');
-            
-            // Gallery State
-            const activeGalleryProduct = ref(null);
-            const galleryIndex = ref(0);
-            
-            const loginUser = ref('');
-            const loginPass = ref('');
-            const customer = ref({ name: '', address: '' });
-            const cart = ref([]);
-            const newProduct = ref({ name: '', price: '', discountPrice: '', images: '', category: 'Jackets' });
-            
-            const products = ref(JSON.parse(localStorage.getItem('driply_products')) || [
-                { name: 'Matrix Winter Parka', price: '180.00', discountPrice: '150.00', images: 'https://images.unsplash.com/photo-1545594944-54877397e066?auto=format&fit=crop&q=80', category: 'Jackets' },
-                { name: 'Cargo Tech Jeans', price: '120.00', images: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80', category: 'Jeans' },
-                { name: 'Utility Belt', price: '45.00', images: 'https://images.unsplash.com/photo-1624222247344-550fb8ec970d?auto=format&fit=crop&q=80', category: 'Accessories' }
-            ]);
-
-            const filteredProducts = computed(() => {
-                if (currentCategory.value === 'all') return products.value;
-                return products.value.filter(p => p.category === currentCategory.value);
-            });
-
-            const orders = ref(JSON.parse(localStorage.getItem('driply_orders') || '[]'));
-            const cartTotal = computed(() => cart.value.reduce((acc, item) => acc + parseFloat(item.discountPrice || item.price), 0).toFixed(2));
-
-            const openGallery = (p) => { activeGalleryProduct.value = p; galleryIndex.value = 0; };
-            const nextImg = () => { const len = activeGalleryProduct.value.images.split(',').length; galleryIndex.value = (galleryIndex.value + 1) % len; };
-            const prevImg = () => { const len = activeGalleryProduct.value.images.split(',').length; galleryIndex.value = (galleryIndex.value - 1 + len) % len; };
-
-            const handleLogin = () => {
-                if(loginUser.value === 'Tourya' && loginPass.value === 'Philipo21') { isLoggedIn.value = true; showLogin.value = false; } 
-                else { alert("Access Denied"); }
-            };
-
-            const addNewProduct = () => {
-                if(!newProduct.value.name || !newProduct.value.price || !newProduct.value.images) return alert("Fill Name, Price, and Images");
-                products.value.push({...newProduct.value});
-                localStorage.setItem('driply_products', JSON.stringify(products.value));
-                newProduct.value = { name: '', price: '', discountPrice: '', images: '', category: 'Jackets' };
-                alert("Product Added!");
-            };
-
-            const checkout = () => {
-                if(!customer.value.name || !customer.value.address) return alert("Missing shipping details");
-                const o = { name: customer.value.name, address: customer.value.address, items: cart.value.map(i => i.name).join(', '), total: cartTotal.value, paid: false };
-                orders.value.push(o);
-                localStorage.setItem('driply_orders', JSON.stringify(orders.value));
-                window.open(`https://www.paypal.me/AdamDupont917/${cartTotal.value}`, '_blank');
-                cart.value = []; showCart.value = false;
-            };
-
-            const logout = () => { isLoggedIn.value = false; };
-            const addToCart = (p) => { cart.value.push({...p}); showCart.value = true; };
-            const deleteProduct = (i) => { products.value.splice(i,1); localStorage.setItem('driply_products', JSON.stringify(products.value)); };
-            const deleteOrder = (i) => { orders.value.splice(i,1); localStorage.setItem('driply_orders', JSON.stringify(orders.value)); };
-            const markAsPaid = (i) => { orders.value[i].paid = true; localStorage.setItem('driply_orders', JSON.stringify(orders.value)); };
-            const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            onMounted(() => { 
-                gsap.registerPlugin(ScrollTrigger); 
-                gsap.utils.toArray(".reveal").forEach(el => { 
-                    ScrollTrigger.create({ trigger: el, start: "top 95%", onEnter: () => el.classList.add("active") }); 
-                }); 
-            });
-
-            return { isLoggedIn, showLogin, showCart, showMobileMenu, adminTab, loginUser, loginPass, customer, products, cart, cartTotal, orders, newProduct, currentCategory, filteredProducts, activeGalleryProduct, galleryIndex, openGallery, nextImg, prevImg, handleLogin, logout, addToCart, checkout, markAsPaid, deleteOrder, scrollToTop, addNewProduct, deleteProduct };
+                `;
+            }).join('');
         }
-    }).mount('#app');
-</script>
-</body>
-</html>
+
+        // --- CART LOGIC ---
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const exists = cart.find(item => item.id === id);
+            if(exists) {
+                exists.qty++;
+            } else {
+                cart.push({...product, qty: 1});
+            }
+            updateCart();
+            alert(`${product.name} added to bag!`);
+        }
+
+        function updateCart() {
+            localStorage.setItem('drip_cart', JSON.stringify(cart));
+            document.getElementById('cart-count').innerText = cart.reduce((a, b) => a + b.qty, 0);
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            const summary = document.getElementById('cart-summary');
+            const empty = document.getElementById('cart-empty');
+
+            if (cart.length === 0) {
+                container.innerHTML = '';
+                summary.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            summary.classList.remove('hidden');
+
+            let total = 0;
+            container.innerHTML = cart.map(item => {
+                const price = item.price * (1 - (item.discount || 0)/100);
+                const subtotal = price * item.qty;
+                total += subtotal;
+                return `
+                    <div class="cart-item">
+                        <img src="${item.img}" style="width: 80px; height: 80px; object-fit: cover;">
+                        <div>
+                            <div style="font-weight: 700;">${item.name}</div>
+                            <div style="color: var(--text-muted);">$${price.toFixed(2)}</div>
+                        </div>
+                        <div class="qty-ctrl">
+                            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                        </div>
+                        <div style="font-weight: 700;">$${subtotal.toFixed(2)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cart-total').innerText = `TOTAL: $${total.toFixed(2)}`;
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            item.qty += delta;
+            if(item.qty <= 0) cart = cart.filter(i => i.id !== id);
+            updateCart();
+            renderCart();
+        }
+
+        // --- CHECKOUT LOGIC ---
+        function renderCheckout() {
+            const list = document.getElementById('summary-list');
+            const totals = document.getElementById('summary-totals');
+            let total = 0;
+
+            list.innerHTML = cart.map(item => {
+                const price = item.price * (1 - (item.discount || 0)/100);
+                total += price * item.qty;
+                return `<div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.9rem;">
+                    <span>${item.name} x ${item.qty}</span>
+                    <span>$${(price * item.qty).toFixed(2)}</span>
+                </div>`;
+            }).join('');
+
+            totals.innerHTML = `<div style="display: flex; justify-content: space-between; font-weight: 900; font-size: 1.2rem;">
+                <span>TOTAL</span>
+                <span>$${total.toFixed(2)}</span>
+            </div>`;
+        }
+
+        document.getElementById('checkout-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            cart = [];
+            updateCart();
+            window.location.href = "https://paypal.me/AdamDupont917";
+        });
+
+        // --- ADMIN LOGIC ---
+        const admin = {
+            isLoggedIn: false,
+            openModal(editId = null) {
+                document.getElementById('product-modal').classList.remove('hidden');
+                const form = document.getElementById('product-form');
+                form.reset();
+                if(editId) {
+                    const p = products.find(x => x.id === editId);
+                    document.getElementById('edit-id').value = p.id;
+                    document.getElementById('p-name').value = p.name;
+                    document.getElementById('p-img').value = p.img;
+                    document.getElementById('p-price').value = p.price;
+                    document.getElementById('p-discount').value = p.discount;
+                    document.getElementById('modal-title').innerText = "Edit Product";
+                } else {
+                    document.getElementById('edit-id').value = '';
+                    document.getElementById('modal-title').innerText = "Add Product";
+                }
+            },
+            closeModal() {
+                document.getElementById('product-modal').classList.add('hidden');
+            },
+            toggleStatus(id) {
+                const p = products.find(x => x.id === id);
+                p.active = !p.active;
+                this.save();
+            },
+            delete(id) {
+                if(confirm('Delete this product?')) {
+                    products = products.filter(x => x.id !== id);
+                    this.save();
+                }
+            },
+            save() {
+                localStorage.setItem('drip_products', JSON.stringify(products));
+                this.renderDashboard();
+            },
+            renderDashboard() {
+                const tbody = document.getElementById('admin-product-list');
+                tbody.innerHTML = products.map(p => `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img src="${p.img}" style="width: 40px; height: 40px; object-fit: cover;">
+                                <span>${p.name}</span>
+                            </div>
+                        </td>
+                        <td>$${p.price}</td>
+                        <td>${p.discount}%</td>
+                        <td>
+                            <span class="status-toggle ${p.active ? 'status-active' : 'status-inactive'}" 
+                                  onclick="admin.toggleStatus('${p.id}')">
+ 
